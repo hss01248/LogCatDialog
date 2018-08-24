@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.zy.logcat.LogCatControl;
+import com.zy.logcat.LogcatDialogUtil;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        LogcatDialogUtil.init(getApplication());
 //        LogCatControl.getBuilder(this)
 //                .setTitle("自定义标题")
 //                .setSearchContent("自定义搜索内容")
@@ -39,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void onTest(View view) {
-        LogCatControl.getBuilder(this).clear();
-        LogCatControl.getBuilder(this).show();
+        /*LogCatControl.getBuilder(this).clear();
+        LogCatControl.getBuilder(this).show();*/
+        LogcatDialogUtil.show(view.getContext().getApplicationContext(),getPackageName());
     }
 
     /**

@@ -27,7 +27,7 @@
 #### 第2步 添加依赖关系
 
         dependencies {
-        	   compile 'com.github.hss01248:LogCatDialog:1.0.3'
+        	   compile 'com.github.hss01248:LogCatDialog:1.0.4'
         }
 
 
