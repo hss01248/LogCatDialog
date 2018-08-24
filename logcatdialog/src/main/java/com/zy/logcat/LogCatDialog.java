@@ -3,6 +3,7 @@ package com.zy.logcat;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.IdRes;
@@ -26,8 +27,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zy.logcat.R;
-
 class LogCatDialog extends Dialog {
 
     private String title = "Console";
@@ -43,15 +42,24 @@ class LogCatDialog extends Dialog {
 
     private TextView tvTitle;
 
+    private ImageView ivClear;
+
     private List<String> contentList = new ArrayList<>();
 
     /*是否自动拉取到最底部*/
     private boolean isAutoFullScroll = true;
 
+    private boolean showTime = false;
+
+    private boolean hideTag = true;
+
+    private TextView tvShowTag;
+    private TextView tvShowTime;
+
 
     private String searchContent = "";
     private String noContentHint = "没有log信息";
-    private String searchHint = "正在获取log信息";
+    private String searchHint = "正在获取log信息...";
 
     /*显示级别，0 所有，1 系统，2 警告,3 错误*/
     private int showGrade = 0;
@@ -198,29 +206,59 @@ class LogCatDialog extends Dialog {
      * @param line
      */
     private void append(String line) {
-        if (showGrade == 0 || showGrade == 1) {
-            if (line.contains(" E ")) {
-                tvLog.append("\n\n");
-                showError(line);
-            } else if (line.contains(" W ")) {
-                tvLog.append("\n\n");
-                showWarning(line);
-            } else {
-                tvLog.append("\n\n" + line);
-            }
-        } else if (showGrade == 2) {
-            if (line.contains(" W ")) {
-                tvLog.append("\n\n");
-                showWarning(line);
-            }
-        } else if (showGrade == 3) {
-            if (line.contains(" E ")) {
-                tvLog.append("\n\n");
-                showError(line);
-            }
+        switch (showGrade){
+            case 0:
+                if(line.contains(" V ")){
+                    line =  deleteTime(" V ",line,showTime);
+
+                    tvLog.append("\n\n" + line);
+                }
+                if(line.contains(" D ")){
+                    tvLog.append("\n\n");
+                    line =  deleteTime(" D ",line,showTime);
+                    showDebug(line);
+                }
+            case 1:
+                if(line.contains(" I ")){
+                    tvLog.append("\n\n");
+                    line =  deleteTime(" I ",line,showTime);
+                    showInfo(line);
+
+                }
+            case 2:
+                if (line.contains(" W ")) {
+                    tvLog.append("\n\n");
+                    line =  deleteTime(" W ",line,showTime);
+                    showWarning(line);
+                }
+            case 3:
+                if (line.contains(" E ")) {
+                    tvLog.append("\n\n");
+                    line =  deleteTime(" E ",line,showTime);
+                    showError(line);
+                }
+                break;
+
+
         }
         mHandler.sendEmptyMessageDelayed(WHAT_STATUS_LOG,1000);
 
+    }
+
+    private String deleteTime(String s, String line, boolean showTime) {
+        if(showTime){
+            return line;
+        }
+        line = line.substring(line.indexOf(s));
+
+        if(hideTag){
+            return line.substring(line.indexOf(":"));
+        }
+
+        if(" V ".equals(s)){
+            return line.replaceFirst(":", ":\n");
+        }
+        return line.replaceFirst(":", ":<br>");
     }
 
     /**
@@ -229,7 +267,7 @@ class LogCatDialog extends Dialog {
      * @param line
      */
     private void showWarning(String line) {
-        showLine(line, "#ba8a27");
+        showLine(line, "#BBBB23");
     }
 
     /**
@@ -238,7 +276,15 @@ class LogCatDialog extends Dialog {
      * @param line
      */
     private void showError(String line) {
-        showLine(line, "red");
+        showLine(line, "#FF0006");
+    }
+
+    private void showInfo(String line) {
+        showLine(line, "#48BB31");
+    }
+
+    private void showDebug(String line) {
+        showLine(line, "#0070BB");
     }
 
     private void showLine(String line, String color) {
@@ -275,11 +321,43 @@ class LogCatDialog extends Dialog {
     private float y2 = 0;
 
     private void initView() {
-        View view = View.inflate(getContext(), R.layout.logcat_dialog, null);
+        final View view = View.inflate(getContext(), R.layout.logcat_dialog, null);
 
         setContentView(view);
         tvTitle = (TextView) view.findViewById(R.id.tv_title);
         tvTitle.setText(title);
+        ivClear = (ImageView) view.findViewById(R.id.iv_clear);
+        ivClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               tvLog.setText("");
+            }
+        });
+
+        tvShowTime = (TextView) view.findViewById(R.id.iv_time);
+        tvShowTag = (TextView) view.findViewById(R.id.iv_tag);
+
+        tvShowTag.setTextColor(hideTag ? Color.LTGRAY : Color.YELLOW);
+        tvShowTime.setTextColor(showTime ? Color.YELLOW : Color.LTGRAY);
+        tvShowTag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(showTime){
+                    return;
+                }
+                hideTag = !hideTag;
+                tvShowTag.setTextColor(hideTag ? Color.LTGRAY : Color.YELLOW);
+
+            }
+        });
+        tvShowTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTime = ! showTime;
+                tvShowTime.setTextColor(showTime ? Color.YELLOW : Color.LTGRAY);
+            }
+        });
+
         //日志级别
         rgGrade = (RadioGroup) view.findViewById(R.id.rg_grade);
         rgGrade.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -290,7 +368,7 @@ class LogCatDialog extends Dialog {
                     searchContent("");
                 } else if (checkedId == R.id.rb_system_out) {
                     showGrade = 1;
-                    searchContent("System.out");
+                    searchContent("");
                 } else if (checkedId == R.id.rb_warming) {
                     showGrade = 2;
                     searchContent("");
@@ -307,7 +385,7 @@ class LogCatDialog extends Dialog {
             public void onOk(String content) {
                 tvStatus.setText(searchHint);
                 tvStatus.setVisibility(View.VISIBLE);
-                Toast.makeText(getContext(), "正在搜索[" + content + "]", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "正在搜索[" + content + "]...", Toast.LENGTH_SHORT).show();
                 searchContent(content);
             }
         });

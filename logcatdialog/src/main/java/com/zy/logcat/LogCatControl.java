@@ -1,10 +1,6 @@
 package com.zy.logcat;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.view.Display;
-import android.view.View;
-import android.view.WindowManager;
 
 /**
  * Created by ZY on 2018/6/22.
@@ -108,4 +104,5 @@ public class LogCatControl {
         cleardialog();
         logCatControl = null;
     }
+
 }

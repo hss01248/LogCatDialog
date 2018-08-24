@@ -98,14 +98,14 @@
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:checked="true"
-            android:text="A" />
+            android:text="D" />
 
         <RadioButton
             android:id="@+id/rb_system_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:text="O" />
+            android:text="I" />
 
         <RadioButton
             android:id="@+id/rb_warming"
@@ -121,4 +121,38 @@
             android:layout_height="wrap_content"
             android:text="E" />
     </RadioGroup>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/rg_grade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_clear"
+            android:src="@drawable/third_party_delete"
+            android:layout_width="40dp"
+            android:scaleType="centerInside"
+            android:layout_height="40dp"/>
+        <TextView
+            android:id="@+id/iv_tag"
+            android:text="tag"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:src="@drawable/third_party_delete"
+            android:layout_width="40dp"
+            android:scaleType="centerInside"
+            android:layout_height="40dp"/>
+        <TextView
+            android:id="@+id/iv_time"
+            android:text="time"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:src="@drawable/third_party_delete"
+            android:layout_width="40dp"
+            android:scaleType="centerInside"
+            android:layout_height="40dp"/>
+    </LinearLayout>
+
+
 </RelativeLayout>
